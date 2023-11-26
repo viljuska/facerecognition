@@ -3,9 +3,9 @@ import './FaceRecognition.css';
 const FaceRecognition = ( { imageUrl, box } ) => {
 	return (
 		<div className="center ma">
-			<div className="absolute mt2">
+			<div className="relative mt2">
 				<img alt="" src={ imageUrl } width="300px" height="auto" id="inputimage"/>
-				{ (box.topRow || box.rightCol || box.bottomRow || box.leftCol) &&
+				{ ( box.topRow || box.rightCol || box.bottomRow || box.leftCol ) &&
 					<div className="bounding-box"
 					     style={ {
 						     top   : box.topRow,

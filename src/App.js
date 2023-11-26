@@ -11,13 +11,10 @@ import Signin          from './components/Signin/Signin';
 import Register        from './components/Register/Register';
 
 const setupClarifaiRequest = ( imageUrl ) => {
-	const PAT       = 'a902e646fca3485688eeae7d1b8a1e9d';
-	const USER_ID   = 'viljuska';
-	const APP_ID    = 'facerecognitionbrain';
-	// const MODEL_ID  = 'face-detection';
-	const IMAGE_URL = imageUrl;
-
-	const raw = JSON.stringify( {
+	const PAT     = 'a902e646fca3485688eeae7d1b8a1e9d';
+	const USER_ID = 'viljuska';
+	const APP_ID  = 'facerecognitionbrain';
+	const raw     = JSON.stringify( {
 		'user_app_id': {
 			'user_id': USER_ID,
 			'app_id' : APP_ID,
@@ -26,7 +23,7 @@ const setupClarifaiRequest = ( imageUrl ) => {
 			{
 				'data': {
 					'image': {
-						'url': IMAGE_URL,
+						'url': imageUrl,
 					},
 				},
 			},
@@ -52,6 +49,14 @@ class App extends Component {
 			box       : {},
 			route     : 'signin',
 			isSignedIn: false,
+			user      : {
+				id      : 0,
+				name    : '',
+				email   : '',
+				password: '',
+				entries : 0,
+				joined  : '',
+			},
 		};
 	}
 
@@ -84,6 +89,19 @@ class App extends Component {
 		fetch( 'https://api.clarifai.com/v2/models/' + 'face-detection' + '/outputs', setupClarifaiRequest( this.state.input ) )
 			.then( response => response.json() )
 			.then( result => {
+				if ( result ) {
+					fetch( 'http://localhost:3000/image', {
+						method : 'PUT',
+						headers: { 'Content-Type': 'application/json' },
+						body   : JSON.stringify( { id: this.state.user.id } ),
+					} )
+						.then( response => response.json() )
+						.then( count => {
+							// This way, we only assign one value to the object, and not the whole object
+							this.setState( Object.assign( this.state.user, { entries: count } ) );
+						} )
+						.catch( console.log );
+				}
 				this.setBox( this.calculateFaceLocation( result ) );
 			} )
 			.catch( error => console.log( 'error', error ) );
@@ -99,24 +117,36 @@ class App extends Component {
 		this.setState( { route } );
 	};
 
+	loadUser = ( { id, name, email, entries, joined } ) => {
+		this.setState( {
+			user: {
+				id     : id,
+				name   : name,
+				email  : email,
+				entries: entries,
+				joined : joined,
+			},
+		} );
+	};
+
 	render() {
 		const { isSignedIn, route, imageUrl, box } = this.state;
 
 		return (
 			<div className="App">
-				<ParticlesBg type="circle" bg={ true }/>
+				<ParticlesBg type="cobweb" bg={ true }/>
 				<Navigation onRouteChange={ this.onRouteChange } isSignedIn={ isSignedIn }/>
 				{ route === 'home' ?
 					<div>
 						<Logo/>
-						<Rank/>
+						<Rank username={ this.state.user.name } entries={ this.state.user.entries }/>
 						<ImageLinkForm onInputChange={ this.onInputChange } onButtonSubmit={ this.onButtonSubmit }/>
 						<FaceRecognition imageUrl={ imageUrl } box={ box }/>
 					</div> :
 					(
 						route === 'signin' ?
-							<Signin onRouteChange={ this.onRouteChange }/> :
-							<Register onRouteChange={ this.onRouteChange }/>
+							<Signin onRouteChange={ this.onRouteChange } loadUser={ this.loadUser }/> :
+							<Register onRouteChange={ this.onRouteChange } loadUser={ this.loadUser }/>
 					)
 				}
 			</div>
