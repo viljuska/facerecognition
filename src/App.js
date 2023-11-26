@@ -31,7 +31,8 @@ const initialState = {
 		entries : 0,
 		joined  : '',
 	},
-};
+},
+      apiUrl       = 'https://facerecognition-api-p6ec.onrender.com';
 
 class App extends Component {
 	constructor( props ) {
@@ -65,7 +66,7 @@ class App extends Component {
 		const { user: { id } } = this.state;
 		this.setState( { imageUrl: this.state.input } );
 
-		fetch( '//localhost:3000/imageurl', {
+		fetch( `${ apiUrl }/imageurl`, {
 			method : 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body   : JSON.stringify( { input: this.state.input } ),
@@ -73,7 +74,7 @@ class App extends Component {
 			.then( response => response.json() )
 			.then( result => {
 				if ( result ) {
-					fetch( '//localhost:3000/image', {
+					fetch( `${ apiUrl }/image`, {
 						method : 'PUT',
 						headers: { 'Content-Type': 'application/json' },
 						body   : JSON.stringify( { id } ),
@@ -128,8 +129,8 @@ class App extends Component {
 					</div> :
 					(
 						route === 'signin' ?
-							<Signin onRouteChange={ this.onRouteChange } loadUser={ this.loadUser }/> :
-							<Register onRouteChange={ this.onRouteChange } loadUser={ this.loadUser }/>
+							<Signin onRouteChange={ this.onRouteChange } loadUser={ this.loadUser } api={ apiUrl }/> :
+							<Register onRouteChange={ this.onRouteChange } loadUser={ this.loadUser } api={ apiUrl }/>
 					)
 				}
 			</div>

@@ -23,7 +23,7 @@ class Register extends Component {
 	};
 
 	onRegister = () => {
-		fetch( 'http://localhost:3000/register', {
+		fetch( `${ this.props.api }/register`, {
 			method : 'post',
 			headers: { 'Content-Type': 'application/json' },
 			body   : JSON.stringify( {
