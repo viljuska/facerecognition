@@ -10,54 +10,33 @@ import FaceRecognition from './components/FaceRecognition/FaceRecognition';
 import Signin          from './components/Signin/Signin';
 import Register        from './components/Register/Register';
 
-const setupClarifaiRequest = ( imageUrl ) => {
-	const PAT     = 'a902e646fca3485688eeae7d1b8a1e9d';
-	const USER_ID = 'viljuska';
-	const APP_ID  = 'facerecognitionbrain';
-	const raw     = JSON.stringify( {
-		'user_app_id': {
-			'user_id': USER_ID,
-			'app_id' : APP_ID,
-		},
-		'inputs'     : [
-			{
-				'data': {
-					'image': {
-						'url': imageUrl,
-					},
-				},
-			},
-		],
-	} );
+/**
+ *
+ * @todo: add choice to select model
+ * @todo: Create form component for signin and register
+ * @todo: Split components into smaller ones
+ */
 
-	return {
-		method : 'POST',
-		headers: {
-			'Accept'       : 'application/json',
-			'Authorization': 'Key ' + PAT,
-		},
-		body   : raw,
-	};
+const initialState = {
+	input     : '',
+	imageUrl  : '',
+	box       : {},
+	route     : 'signin',
+	isSignedIn: false,
+	user      : {
+		id      : 0,
+		name    : '',
+		email   : '',
+		password: '',
+		entries : 0,
+		joined  : '',
+	},
 };
 
 class App extends Component {
 	constructor( props ) {
 		super( props );
-		this.state = {
-			input     : '',
-			imageUrl  : '',
-			box       : {},
-			route     : 'signin',
-			isSignedIn: false,
-			user      : {
-				id      : 0,
-				name    : '',
-				email   : '',
-				password: '',
-				entries : 0,
-				joined  : '',
-			},
-		};
+		this.state = initialState;
 	}
 
 	calculateFaceLocation = ( data ) => {
@@ -84,15 +63,17 @@ class App extends Component {
 
 	onButtonSubmit = () => {
 		const { user: { id } } = this.state;
-
 		this.setState( { imageUrl: this.state.input } );
 
-		// todo: add choice to select model
-		fetch( 'https://api.clarifai.com/v2/models/' + 'face-detection' + '/outputs', setupClarifaiRequest( this.state.input ) )
+		fetch( '//localhost:3000/imageurl', {
+			method : 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body   : JSON.stringify( { input: this.state.input } ),
+		} )
 			.then( response => response.json() )
 			.then( result => {
 				if ( result ) {
-					fetch( 'http://localhost:3000/image', {
+					fetch( '//localhost:3000/image', {
 						method : 'PUT',
 						headers: { 'Content-Type': 'application/json' },
 						body   : JSON.stringify( { id } ),
@@ -111,7 +92,7 @@ class App extends Component {
 
 	onRouteChange = ( route ) => {
 		if ( route === 'signout' ) {
-			this.setState( { isSignedIn: false } );
+			this.setState( initialState );
 		} else if ( route === 'home' ) {
 			this.setState( { isSignedIn: true } );
 		}

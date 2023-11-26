@@ -1,9 +1,13 @@
 .App {
-  text-align: center;
+	text-align: center;
 }
 
 .center {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.form-article {
+	backdrop-filter: blur(5px);
 }
