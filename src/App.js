@@ -83,6 +83,8 @@ class App extends Component {
 	};
 
 	onButtonSubmit = () => {
+		const { user: { id } } = this.state;
+
 		this.setState( { imageUrl: this.state.input } );
 
 		// todo: add choice to select model
@@ -93,7 +95,7 @@ class App extends Component {
 					fetch( 'http://localhost:3000/image', {
 						method : 'PUT',
 						headers: { 'Content-Type': 'application/json' },
-						body   : JSON.stringify( { id: this.state.user.id } ),
+						body   : JSON.stringify( { id } ),
 					} )
 						.then( response => response.json() )
 						.then( count => {
